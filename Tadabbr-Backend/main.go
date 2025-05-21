@@ -14,5 +14,7 @@ func init() {
 func main() {
 	router := gin.Default()
 	router.POST("/sugg", controllers.Suggestion)
+	router.POST("/search", controllers.Search)
+
 	router.Run()
 }
