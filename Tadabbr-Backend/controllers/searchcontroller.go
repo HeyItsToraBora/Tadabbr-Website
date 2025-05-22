@@ -42,7 +42,7 @@ func Search(c *gin.Context) {
 	}
 
 	// check if cached
-	// the key is the suggestion struct
+	// the key is the verse key struct
 	val, err := initializers.Cache.Get(initializers.CacheCtx, Body.Key).Result()
 	if err == redis.Nil {
 		// not cached

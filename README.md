@@ -112,3 +112,58 @@ Fetches all entries with a specific verse key.
 - Errors during DB operations are logged and return a 500 response if necessary.
 
 ---
+
+## POST `/report/add`
+
+Submits a new user report for a poem edit.
+
+### Request Body
+
+```json
+{
+  "id": number,     // ID of the poem being reported
+  "edit": "string"  // The proposed edit text
+}
+```
+
+### Response
+
+- `200 OK` – Report submitted successfully.
+- `404 Not Found` – Error during report insertion.
+
+### Description
+
+- Creates a new report for the given `poem_id`.
+- `checked` is set to `false` by default.
+- `edit_by` is set to `null` (anonymous submission).
+- Internal errors are logged, but not exposed to clients.
+
+---
+
+## GET `/report/all`
+
+Fetches all submitted reports along with associated poem data.
+
+### Response
+
+```json
+{
+  "reports": [
+    {
+      "poem": "string",        // Original poem text
+      "poemid": number,        // Poem ID
+      "surahkey": "string",    // Quranic verse key (e.g., "2:255")
+      "editor": "string|null", // Editor username if available
+      "edit": "string",        // Proposed edit
+      "checked": boolean       // Whether the report has been reviewed
+    }
+  ]
+}
+```
+
+### Description
+
+- Retrieves all reports from the database.
+- Joins each report with its related poem using `poem_id`.
+- Skips any reports whose poem is not found, logging the error internally.
+- Returns a full array of report objects with contextual information.

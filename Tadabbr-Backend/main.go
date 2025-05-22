@@ -20,6 +20,7 @@ func main() {
 	router.POST("/sugg", controllers.Suggestion)
 	router.POST("/search", controllers.Search)
 	router.POST("/report", controllers.AddReport)
+	router.GET("/reportlist", controllers.FetchReports)
 
 	router.Run()
 }
