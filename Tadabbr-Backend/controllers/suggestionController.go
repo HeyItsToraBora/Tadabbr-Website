@@ -1,14 +1,17 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sort"
+	"time"
 
 	"github.com/Tadabbr/backend/initializers"
 	"github.com/Tadabbr/backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/fuzzysearch/fuzzy"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 )
 
@@ -47,13 +50,57 @@ func GetFullRowByType(qtype string, text string) (*models.Poetry, error) {
 	return &result, nil
 }
 
+func cacheResults(cachekey string, results []result) bool {
+	jsonString, err := json.Marshal(results)
+	if err != nil {
+		logrus.Errorf("Couldn't cache results, error in serialization: %v", err.Error())
+		return false
+	}
+	err = initializers.Cache.Set(initializers.CacheCtx, cachekey, jsonString, 6*time.Hour).Err()
+	if err != nil {
+		logrus.Errorf("Failed to cache results: %v", err.Error())
+		return false
+	}
+	return true
+}
+
 func Suggestion(c *gin.Context) {
 
 	sugg := suggestion{}
 	if err := c.ShouldBindJSON(&sugg); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
 	}
+	// check if cached
+	// the key is the suggestion struct
+	cachekey := fmt.Sprintf("%s:%s", sugg.Query, sugg.Qtype)
+	val, err := initializers.Cache.Get(initializers.CacheCtx, cachekey).Result()
+	if err == redis.Nil {
+		// not cached
+		// do nothing
+	} else if err != nil {
+		// Error
+		// log
+		logrus.Errorf("Error in Checking retriving Cache: %v", err.Error())
+	} else {
+		// HIT
+
+		var cachedResults []result
+		if err := json.Unmarshal([]byte(val), &cachedResults); err != nil {
+			logrus.Errorf("Error unmarshaling cached value: %v", err)
+		} else {
+			c.JSON(200, gin.H{
+				"possibles": cachedResults,
+			})
+			return
+		}
+
+	}
+
+	// not cached
+
 	var searchables []string
+
 	// make the query
 	if sugg.Qtype == "ayat" {
 		result := initializers.DB.Model(&models.Poetry{}).Distinct("verse").Pluck("verse", &searchables)
@@ -96,6 +143,8 @@ func Suggestion(c *gin.Context) {
 
 	}
 
+	// cache the results
+	logrus.Info(cacheResults(cachekey, results))
 	c.JSON(200, gin.H{
 		"possibles": results,
 	})

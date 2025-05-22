@@ -7,8 +7,10 @@ import (
 )
 
 func init() {
+	initializers.LoadEnvVariables() // has to be first
 	initializers.ConnectToDb()
-	initializers.LoadEnvVariables()
+	initializers.ConnectToCache()
+
 }
 
 func main() {
