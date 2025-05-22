@@ -62,7 +62,7 @@ func Search(c *gin.Context) {
 		}
 
 	}
-	err = initializers.DB.Where(fmt.Sprintf("%s = ?", "verse_key"), Body.Key).Find(&results).Error
+	err = initializers.PoetryDb.Where(fmt.Sprintf("%s = ?", "verse_key"), Body.Key).Find(&results).Error
 	if err != nil {
 		logrus.Error(err)
 	}

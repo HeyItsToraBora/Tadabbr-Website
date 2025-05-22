@@ -10,6 +10,8 @@ func init() {
 	initializers.LoadEnvVariables() // has to be first
 	initializers.ConnectToDb()
 	initializers.ConnectToCache()
+	initializers.IntializeDb()
+	initializers.InsertDefaultRoles()
 
 }
 

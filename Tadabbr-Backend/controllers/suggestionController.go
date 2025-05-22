@@ -42,7 +42,7 @@ func GetFullRowByType(qtype string, text string) (*models.Poetry, error) {
 		return nil, fmt.Errorf("unsupported query type: %s", qtype)
 	}
 
-	err := initializers.DB.Where(fmt.Sprintf("%s = ?", queryField), text).First(&result).Error
+	err := initializers.PoetryDb.Where(fmt.Sprintf("%s = ?", queryField), text).First(&result).Error
 	if err != nil {
 		return nil, err
 	}
@@ -103,12 +103,12 @@ func Suggestion(c *gin.Context) {
 
 	// make the query
 	if sugg.Qtype == "ayat" {
-		result := initializers.DB.Model(&models.Poetry{}).Distinct("verse").Pluck("verse", &searchables)
+		result := initializers.PoetryDb.Model(&models.Poetry{}).Distinct("verse").Pluck("verse", &searchables)
 		if result.Error != nil {
 			logrus.Error(result.Error)
 		}
 	} else if sugg.Qtype == "poet" {
-		result := initializers.DB.Model(&models.Poetry{}).Distinct("poetry").Pluck("poetry", &searchables)
+		result := initializers.PoetryDb.Model(&models.Poetry{}).Distinct("poetry").Pluck("poetry", &searchables)
 		if result.Error != nil {
 			logrus.Error(result.Error)
 
