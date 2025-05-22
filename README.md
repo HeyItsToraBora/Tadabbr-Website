@@ -24,10 +24,8 @@ The poetry is extracted from publicly available tafsir texts and organized into 
 **Tadabbr** is built for exploration, reflection, and deepening appreciation of the literary and interpretive traditions that surround the Quran.
 
 ## TODOs
-- Caching for /sugg & /search endpoint [x]
-- Database for users & user reports []
+
 - A way to authenticate admins []
-- an endpoint for submitting reports []
 - an endpoint for approving reports (edits the poetry db) []
 ## Documentation 
 
