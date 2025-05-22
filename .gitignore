@@ -2,3 +2,4 @@ poetry.db
 backend
 go.sum
 .env
+__debug*
