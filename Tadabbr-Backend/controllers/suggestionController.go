@@ -69,6 +69,7 @@ func Suggestion(c *gin.Context) {
 	sugg := suggestion{}
 	if err := c.ShouldBindJSON(&sugg); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		c.AbortWithStatus(404)
 		return
 	}
 	// check if cached
@@ -106,11 +107,15 @@ func Suggestion(c *gin.Context) {
 		result := initializers.PoetryDb.Model(&models.Poetry{}).Distinct("verse").Pluck("verse", &searchables)
 		if result.Error != nil {
 			logrus.Error(result.Error)
+			c.AbortWithStatus(404)
+			return
 		}
 	} else if sugg.Qtype == "poet" {
 		result := initializers.PoetryDb.Model(&models.Poetry{}).Distinct("poetry").Pluck("poetry", &searchables)
 		if result.Error != nil {
 			logrus.Error(result.Error)
+			c.AbortWithStatus(404)
+			return
 
 		}
 	}

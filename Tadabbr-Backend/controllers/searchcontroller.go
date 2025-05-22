@@ -13,7 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type RequestBody struct {
+type RequestBodySearch struct {
 	Key string `json:"key"`
 }
 
@@ -35,9 +35,10 @@ func Search(c *gin.Context) {
 
 	var results []models.Poetry
 
-	Body := RequestBody{}
+	Body := RequestBodySearch{}
 	if err := c.ShouldBindJSON(&Body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
 	}
 
 	// check if cached
@@ -65,6 +66,8 @@ func Search(c *gin.Context) {
 	err = initializers.PoetryDb.Where(fmt.Sprintf("%s = ?", "verse_key"), Body.Key).Find(&results).Error
 	if err != nil {
 		logrus.Error(err)
+		c.AbortWithStatus(404)
+		return
 	}
 
 	// cache results

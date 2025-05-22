@@ -1,4 +1,5 @@
-*.db
+poetry.db
+database.db 
 backend
 go.sum
 .env
