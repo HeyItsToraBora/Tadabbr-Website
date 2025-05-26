@@ -2,37 +2,33 @@ package initializers
 
 import (
 	"context"
-	"log"
+	"database/sql"
+	_ "embed"
 	"os"
 	"strconv"
 
-	"github.com/Tadabbr/backend/models"
+	"github.com/Tadabbr/backend/db"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	_ "modernc.org/sqlite"
 )
 
-var PoetryDb *gorm.DB
-var DB *gorm.DB
-var CacheCtx context.Context
+var DB *sql.DB
+var DbQueries *db.Queries
+var Ctx context.Context
 var Cache *redis.Client
 
 func ConnectToDb() {
 	var err error
-	PoetryDb, err = gorm.Open(sqlite.Open("db/poetry.db"), &gorm.Config{})
+	DB, err = sql.Open("sqlite", "db/database.db")
 	if err != nil {
-		panic("failed to connect database")
-	}
-
-	DB, err = gorm.Open(sqlite.Open("db/database.db"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
+		logrus.Fatalf("failed to connect database : %v", err)
+		os.Exit(1)
 	}
 }
 
 func ConnectToCache() {
-	CacheCtx = context.Background()
+	Ctx = context.Background()
 	DB, err := strconv.Atoi(os.Getenv("DB"))
 	if err != nil {
 		logrus.Fatalf("failed to connect to Redis: %v", err)
@@ -43,38 +39,19 @@ func ConnectToCache() {
 		Password: os.Getenv("REDISPASSWORD"),
 		DB:       DB,
 	})
-}
-
-func IntializeDb() {
-	if err := models.MigrateRole(DB); err != nil {
-		log.Fatal(err)
-	}
-	if err := models.MigrateUser(DB); err != nil {
-		log.Fatal(err)
-	}
-	if err := models.MigrateReport(DB); err != nil {
-		log.Fatal(err)
-	}
-	if err := models.MigrateDonation(DB); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func InsertDefaultRoles() {
-	roles := []string{"admin", "editor"}
-
-	for _, name := range roles {
-		var role models.Role
-		err := DB.Where("name = ?", name).First(&role).Error
-		if err == gorm.ErrRecordNotFound {
-			// Not found, create role
-			if err := DB.Create(&models.Role{Name: name}).Error; err != nil {
-				logrus.Errorf("Error in adding role: %v", err.Error())
-			}
-		} else if err != nil {
-			logrus.Errorf("Error in adding role: %v", err.Error())
+	if os.Getenv("GIN_MODE") == "debug" {
+		err = Cache.FlushDB(Ctx).Err()
+		if err != nil {
+			logrus.Errorf("Error in flushing Cache:%v", err.Error())
 		}
-		// If found, do nothing and continue
 	}
+}
 
+func IntializeDb(ddl string) error {
+	if _, err := DB.ExecContext(Ctx, ddl); err != nil {
+		logrus.Fatalf("failed to connect database : %v", err)
+		os.Exit(1)
+	}
+	DbQueries = db.New(DB)
+	return nil
 }

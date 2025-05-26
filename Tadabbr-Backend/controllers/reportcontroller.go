@@ -1,11 +1,10 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 
+	"github.com/Tadabbr/backend/db"
 	"github.com/Tadabbr/backend/initializers"
-	"github.com/Tadabbr/backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -25,15 +24,13 @@ func AddReport(c *gin.Context) {
 	}
 
 	// add a new report
-	report := models.Report{
-		PoemID:  uint(Body.Id),
-		Edit:    Body.Edit,
-		Checked: false,
-		EditBy:  nil,
+	report := db.CreateReportParams{
+		PoemID: int64(Body.Id),
+		Edit:   Body.Edit,
 	}
-	err := initializers.DB.Create(&report).Error
+	err := initializers.DbQueries.CreateReport(initializers.Ctx, report)
 	if err != nil {
-		logrus.Errorf("Error while inserting a report: %v", err)
+		logrus.Infof("Error while inserting a report: %v", err)
 		c.JSON(404, gin.H{
 			"error": "Resource not found",
 		})
@@ -45,37 +42,25 @@ func AddReport(c *gin.Context) {
 }
 
 type FetchResponse struct {
-	Poem     string  `json:"poem"`
-	Poemid   int     `json:"poemid"`
-	Surahkey string  `json:"surahkey"`
-	Editor   *string `json:"editor"`
-	Edit     string  `json:"edit"`
-	Checked  bool    `json:"checked"`
-}
-
-func GetPoetRowByPid(pid int) (*models.Poetry, error) {
-	var result models.Poetry
-
-	err := initializers.PoetryDb.Where("id = ?", pid).First(&result).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
+	Poem     string `json:"poem"`
+	Poemid   int    `json:"poemid"`
+	Surahkey string `json:"surahkey"`
+	Edit     string `json:"edit"`
+	Checked  bool   `json:"checked"`
 }
 
 func FetchReports(c *gin.Context) {
-	var reports []models.Report
+	var reports []db.Report
 	var response []FetchResponse
-	results := initializers.DB.Find(&reports)
-	if results.Error != nil {
-		log.Fatalf("failed to fetch reports: %v", results.Error.Error())
+	reports, err := initializers.DbQueries.ListReports(initializers.Ctx)
+	if err != nil {
+		logrus.Fatalf("failed to fetch reports: %v", err.Error())
 		c.AbortWithStatus(404)
 		return
 	}
 	for _, report := range reports {
 
-		row, err := GetPoetRowByPid(int(report.PoemID))
+		row, err := initializers.DbQueries.GetPoemById(initializers.Ctx, int64(report.PoemID))
 		if err != nil {
 			logrus.Error("Error fetching row:", err)
 		} else {
@@ -83,7 +68,6 @@ func FetchReports(c *gin.Context) {
 				Poem:     row.Poetry,
 				Poemid:   int(row.ID),
 				Surahkey: row.VerseKey,
-				Editor:   report.EditBy,
 				Edit:     report.Edit,
 				Checked:  report.Checked,
 			}

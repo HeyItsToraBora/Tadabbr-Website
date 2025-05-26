@@ -1,14 +1,15 @@
 package controllers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"sort"
 	"time"
 
+	"github.com/Tadabbr/backend/db"
 	"github.com/Tadabbr/backend/initializers"
-	"github.com/Tadabbr/backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/redis/go-redis/v9"
@@ -21,33 +22,12 @@ type suggestion struct {
 }
 
 type result struct {
-	Text     string  `json:"text"`
-	Match    int     `json:"match"`
-	Surahkey string  `json:"surahkey"`
-	Surah    string  `json:"surah"`
-	Id       uint    `json:"id"`
-	Poet     *string `json:"poet"`
-}
-
-func GetFullRowByType(qtype string, text string) (*models.Poetry, error) {
-	var result models.Poetry
-
-	var queryField string
-	switch qtype {
-	case "ayat":
-		queryField = "verse"
-	case "poet":
-		queryField = "poetry"
-	default:
-		return nil, fmt.Errorf("unsupported query type: %s", qtype)
-	}
-
-	err := initializers.PoetryDb.Where(fmt.Sprintf("%s = ?", queryField), text).First(&result).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
+	Text     string         `json:"text"`
+	Match    int            `json:"match"`
+	Surahkey string         `json:"surahkey"`
+	Surah    string         `json:"surah"`
+	Id       int64          `json:"id"`
+	Poet     sql.NullString `json:"poet"`
 }
 
 func cacheResults(cachekey string, results []result) bool {
@@ -56,12 +36,26 @@ func cacheResults(cachekey string, results []result) bool {
 		logrus.Errorf("Couldn't cache results, error in serialization: %v", err.Error())
 		return false
 	}
-	err = initializers.Cache.Set(initializers.CacheCtx, cachekey, jsonString, 6*time.Hour).Err()
+	err = initializers.Cache.Set(initializers.Ctx, cachekey, jsonString, 6*time.Hour).Err()
 	if err != nil {
 		logrus.Errorf("Failed to cache results: %v", err.Error())
 		return false
 	}
 	return true
+}
+
+func GetFullRowByType(qtype string, text string) (*db.Poem, error) {
+	switch qtype {
+	case "ayat":
+		row, err := initializers.DbQueries.GetPoemsRowByVerse(initializers.Ctx, text)
+		return &row, err
+	case "poet":
+		row, err := initializers.DbQueries.GetPoemRowByPoem(initializers.Ctx, text)
+		return &row, err
+
+	default:
+		return nil, fmt.Errorf("unsupported query type: %s", qtype)
+	}
 }
 
 func Suggestion(c *gin.Context) {
@@ -75,13 +69,13 @@ func Suggestion(c *gin.Context) {
 	// check if cached
 	// the key is the suggestion struct
 	cachekey := fmt.Sprintf("%s:%s", sugg.Query, sugg.Qtype)
-	val, err := initializers.Cache.Get(initializers.CacheCtx, cachekey).Result()
+	val, err := initializers.Cache.Get(initializers.Ctx, cachekey).Result()
 	if err == redis.Nil {
 		// not cached
 		// do nothing
 	} else if err != nil {
 		// Error
-		// log
+		// logrus
 		logrus.Errorf("Error in Checking retriving Cache: %v", err.Error())
 	} else {
 		// HIT
@@ -104,16 +98,18 @@ func Suggestion(c *gin.Context) {
 
 	// make the query
 	if sugg.Qtype == "ayat" {
-		result := initializers.PoetryDb.Model(&models.Poetry{}).Distinct("verse").Pluck("verse", &searchables)
-		if result.Error != nil {
-			logrus.Error(result.Error)
+		searchables, err = initializers.DbQueries.GetDistinctVerses(initializers.Ctx)
+		if err != nil {
+			logrus.Error(err.Error())
 			c.AbortWithStatus(404)
 			return
+		} else {
+
 		}
 	} else if sugg.Qtype == "poet" {
-		result := initializers.PoetryDb.Model(&models.Poetry{}).Distinct("poetry").Pluck("poetry", &searchables)
-		if result.Error != nil {
-			logrus.Error(result.Error)
+		searchables, err = initializers.DbQueries.GetDistinctPoems(initializers.Ctx)
+		if err != nil {
+			logrus.Error(err)
 			c.AbortWithStatus(404)
 			return
 

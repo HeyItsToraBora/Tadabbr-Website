@@ -2,28 +2,29 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+
+	"github.com/sirupsen/logrus"
+
 	"net/http"
 	"time"
 
+	"github.com/Tadabbr/backend/db"
 	"github.com/Tadabbr/backend/initializers"
-	"github.com/Tadabbr/backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"github.com/sirupsen/logrus"
 )
 
 type RequestBodySearch struct {
 	Key string `json:"key"`
 }
 
-func cacheSearch(cachekey string, results []models.Poetry) bool {
+func cacheSearch(cachekey string, results []db.Poem) bool {
 	jsonString, err := json.Marshal(results)
 	if err != nil {
 		logrus.Errorf("Couldn't cache results, error in serialization: %v", err.Error())
 		return false
 	}
-	err = initializers.Cache.Set(initializers.CacheCtx, cachekey, jsonString, 6*time.Hour).Err()
+	err = initializers.Cache.Set(initializers.Ctx, cachekey, jsonString, 6*time.Hour).Err()
 	if err != nil {
 		logrus.Errorf("Failed to cache results: %v", err.Error())
 		return false
@@ -33,7 +34,7 @@ func cacheSearch(cachekey string, results []models.Poetry) bool {
 
 func Search(c *gin.Context) {
 
-	var results []models.Poetry
+	var results []db.Poem
 
 	Body := RequestBodySearch{}
 	if err := c.ShouldBindJSON(&Body); err != nil {
@@ -43,13 +44,13 @@ func Search(c *gin.Context) {
 
 	// check if cached
 	// the key is the verse key struct
-	val, err := initializers.Cache.Get(initializers.CacheCtx, Body.Key).Result()
+	val, err := initializers.Cache.Get(initializers.Ctx, Body.Key).Result()
 	if err == redis.Nil {
 		// not cached
 		// do nothing
 	} else if err != nil {
 		// Error
-		// log
+		// logrus
 		logrus.Errorf("Error in Checking retriving Cache: %v", err.Error())
 	} else {
 		// HIT
@@ -63,7 +64,7 @@ func Search(c *gin.Context) {
 		}
 
 	}
-	err = initializers.PoetryDb.Where(fmt.Sprintf("%s = ?", "verse_key"), Body.Key).Find(&results).Error
+	results, err = initializers.DbQueries.GetPoemsRowByVerseKey(initializers.Ctx, Body.Key)
 	if err != nil {
 		logrus.Error(err)
 		c.AbortWithStatus(404)
