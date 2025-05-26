@@ -6,6 +6,7 @@ import (
 
 	"github.com/Tadabbr/backend/controllers"
 	"github.com/Tadabbr/backend/initializers"
+	"github.com/gin-contrib/cors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,6 +24,13 @@ func init() {
 
 func main() {
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // or "*" for all origins (not recommended)
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
+		AllowCredentials: true,
+	}))
+
 	router.POST("/sugg", controllers.Suggestion)
 	router.POST("/search", controllers.Search)
 	router.POST("/report/add", controllers.AddReport)

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"sort"
 	"time"
@@ -63,7 +64,8 @@ func Suggestion(c *gin.Context) {
 	sugg := suggestion{}
 	if err := c.ShouldBindJSON(&sugg); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
-		c.AbortWithStatus(404)
+		logrus.Infof("%v", err)
+		c.AbortWithStatus(400)
 		return
 	}
 	// check if cached
@@ -101,7 +103,7 @@ func Suggestion(c *gin.Context) {
 		searchables, err = initializers.DbQueries.GetDistinctVerses(initializers.Ctx)
 		if err != nil {
 			logrus.Error(err.Error())
-			c.AbortWithStatus(404)
+			c.AbortWithStatus(502)
 			return
 		} else {
 
@@ -109,8 +111,8 @@ func Suggestion(c *gin.Context) {
 	} else if sugg.Qtype == "poet" {
 		searchables, err = initializers.DbQueries.GetDistinctPoems(initializers.Ctx)
 		if err != nil {
-			logrus.Error(err)
-			c.AbortWithStatus(404)
+			log.Printf("Bind error: %v", err)
+			c.AbortWithStatus(502)
 			return
 
 		}
