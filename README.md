@@ -40,7 +40,7 @@ Provides fuzzy search-based suggestions for either **ayat** (verses) or **poet**
 ```json
 {
   "query": "string",  // the text to search for
-  "type": "ayat" | "poet" // the type of search
+  "type": "ayat" | "poem" // the type of search
 }
 ```
 
@@ -55,7 +55,7 @@ Provides fuzzy search-based suggestions for either **ayat** (verses) or **poet**
       "surahkey": "string",   // verse key (e.g., "2:255")
       "surah": "string",      // name of the surah
       "id": number,           // internal ID of the matched entry
-      "poet": "string|null"   // poet name (if applicable)
+      "poem": "string|null"   // poet name (if applicable)
     },
     ...
   ]
@@ -95,7 +95,7 @@ Fetches all entries with a specific verse key.
       "verse_key": "string",
       "poetry": "string",
       "surah": "string",
-      "poet": "string|null",
+      "poem": "string|null",
       // other fields defined in the Poetry model
     },
     ...
