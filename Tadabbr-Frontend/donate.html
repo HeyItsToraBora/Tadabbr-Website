@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ساعدنا في تشغيل الموقع - شواهد</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --theme-toggle-bg: #2c3e50;
+        }
+        [data-theme="dark"] {
+            --primary-color: #ecf0f1;
+            --secondary-color: #3498db;
+            --background-color: #2c3e50;
+            --text-color: #ffffff;
+            --theme-toggle-bg: #ecf0f1;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .donation-content {
+            background-color: var(--background-color);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .donation-amount-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: var(--background-color);
+            border-radius: 12px;
+            padding: 2rem 1rem 2.5rem 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .manual-amount-box {
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .manual-amount-input {
+            width: 100px;
+            padding: 0.5rem 0.8rem;
+            border: 2px solid var(--secondary-color);
+            border-radius: 8px;
+            font-size: 1.2rem;
+            text-align: center;
+            color: var(--primary-color);
+            background: var(--background-color);
+            transition: border 0.2s;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .manual-amount-input:focus {
+            border-color: #2980b9;
+            outline: none;
+        }
+        .manual-amount-input::-webkit-outer-spin-button,
+        .manual-amount-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .amount-label {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .amount-value {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            font-weight: bold;
+            margin-bottom: 1.2rem;
+            text-align: center;
+        }
+        .amount-slider {
+            width: 95%;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+        .quick-amounts {
+            display: flex;
+            gap: 1.2rem;
+            margin-bottom: 0;
+            justify-content: center;
+            width: 100%;
+        }
+        .quick-amount-btn {
+            background: var(--secondary-color);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 0.7rem 2.2rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(52,152,219,0.08);
+        }
+        .quick-amount-btn.selected, .quick-amount-btn:hover {
+            background: #2980b9;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(52,152,219,0.15);
+        }
+        .donation-progress {
+            background-color: var(--background-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--primary-color);
+            margin-bottom: 2rem;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .progress-header h3 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+        .progress-amount {
+            color: var(--secondary-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg,rgba(255,255,255,0.2) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.2) 50%,rgba(255,255,255,0.2) 75%,transparent 75%,transparent);
+            background-size: 30px 30px;
+            animation: move 2s linear infinite;
+        }
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 30px 0; }
+        }
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+        .stat-item {
+            text-align: center;
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+        }
+        .stat-item .label {
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+        }
+        .stat-item .value {
+            color: var(--secondary-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .time-remaining {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            color: var(--text-color);
+        }
+        .time-remaining .highlight {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        .donation-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .donation-method {
+            background-color: var(--background-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--primary-color);
+            text-align: center;
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
+        }
+        .donation-method:hover {
+            background-color: var(--secondary-color);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(52, 152, 219, 0.15);
+            border-color: var(--secondary-color);
+        }
+        .donation-method:hover i,
+        .donation-method:hover h3 {
+            color: #fff;
+        }
+        .donation-method i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        .donation-method h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        .qr-code {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .qr-code img {
+            width: 150px;
+            height: 150px;
+            border: 5px solid var(--background-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .account-details {
+            margin-top: 1rem;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+        .account-details p {
+            margin-bottom: 0.5rem;
+        }
+        .account-details strong {
+            color: var(--primary-color);
+        }
+        .copy-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 0.8rem;
+        }
+        .copy-button:hover {
+            background-color: #34495e;
+        }
+        .copy-notification {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .copy-notification.show {
+            opacity: 1;
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--theme-toggle-bg);
+            color: var(--background-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            z-index: 1000;
+        }
+        .theme-toggle.animated {
+            animation: rotateTheme 0.6s;
+        }
+        @keyframes rotateTheme {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .home-button {
+            position: fixed;
+            top: 1rem;
+            right: 5rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+            z-index: 1000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            height: 34px;
+        }
+        .home-button:hover {
+            background-color: #2980b9;
+        }
+        .home-button i {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+    </div>
+    <a href="home.html" class="home-button" style="text-decoration: none;">
+        <i class="fas fa-home"></i>
+        العودة للرئيسية
+    </a>
+    <div class="container">
+        <header>
+            <h1>ساعدنا في تشغيل الموقع</h1>
+            <p>دعمكم يساعدنا في الحفاظ على شواهد كمرجع مجاني للجميع.</p>
+        </header>
+        <div class="donation-amount-bar">
+            <div class="amount-label">اختر مبلغ التبرع أو أدخله يدويًا:</div>
+            <div class="manual-amount-box">
+                 <span>ريال</span>
+                 <input type="number" id="manualAmount" class="manual-amount-input" value="5">
+            </div>
+            <div class="amount-value" id="selectedAmount">5 ريال</div>
+            <input type="range" id="amountSlider" class="amount-slider" min="5" max="500" value="5" step="5">
+            <div class="quick-amounts">
+                <button class="quick-amount-btn" data-amount="5">5</button>
+                <button class="quick-amount-btn" data-amount="10">10</button>
+                <button class="quick-amount-btn" data-amount="20">20</button>
+                <button class="quick-amount-btn" data-amount="50">50</button>
+                <button class="quick-amount-btn" data-amount="100">100</button>
+            </div>
+        </div>
+        <div class="donation-progress">
+            <div class="progress-header">
+                <h3>هدف التبرع الشهري:</h3>
+                <span class="progress-amount">500 / 1000 ريال</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 50%;"></div>
+            </div>
+            <div class="progress-stats">
+                <div class="stat-item">
+                    <div class="label">المتبرعون هذا الشهر:</div>
+                    <div class="value">15</div>
+                </div>
+                <div class="stat-item">
+                    <div class="label">متوسط التبرع:</div>
+                    <div class="value">33 ريال</div>
+                </div>
+                <div class="stat-item">
+                    <div class="label">أكبر تبرع:</div>
+                    <div class="value">100 ريال</div>
+                </div>
+            </div>
+            <div class="time-remaining">
+                يتبقى <span class="highlight">10 أيام</span> لنهاية الشهر
+            </div>
+        </div>
+        <div class="donation-content">
+            <h2>طرق التبرع المتاحة</h2>
+            <div class="donation-methods">
+                <div class="donation-method">
+                    <i class="fas fa-university"></i>
+                    <h3>تحويل بنكي</h3>
+                    <div class="account-details">
+                        <p><strong>اسم البنك:</strong> بنك الراجحي</p>
+                        <p><strong>رقم الحساب:</strong> 1234567890</p>
+                        <p><strong>رقم الآيبان:</strong> SA121230000001234567890</p>
+                    </div>
+                    <button class="copy-button" onclick="copyAccountDetails('bank')">انسخ التفاصيل</button>
+                </div>
+                <div class="donation-method">
+                    <i class="fab fa-paypal"></i>
+                    <h3>باي بال</h3>
+                    <p>تبرع بسهولة وأمان عبر باي بال.</p>
+                    <div class="qr-code">
+                         <img src="qr-paypal.png" alt="PayPal QR Code">
+                    </div>
+                    <button class="copy-button" onclick="copyAccountDetails('paypal')">تبرع الآن</button>
+                </div>
+                 <div class="donation-method">
+                     <i class="fab fa-btc"></i>
+                     <h3>عملات رقمية (قريبًا)</h3>
+                     <p>ستتوفر قريبًا إمكانية التبرع بالعملات الرقمية.</p>
+                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="copy-notification" id="copyNotification">تم نسخ التفاصيل!</div>
+    <script src="./donate.js"></script>
+</body>
+</html> 
