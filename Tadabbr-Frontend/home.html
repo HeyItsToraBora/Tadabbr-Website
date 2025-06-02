@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تَدَبّر - البحث عن الآيات القرآنية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --theme-toggle-bg: #2c3e50;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #ecf0f1;
+            --secondary-color: #3498db;
+            --background-color: #2c3e50;
+            --text-color: #ffffff;
+            --theme-toggle-bg: #ecf0f1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--theme-toggle-bg);
+            color: var(--background-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            z-index: 1000;
+        }
+        .theme-toggle.animated {
+            animation: rotateTheme 0.6s;
+        }
+        @keyframes rotateTheme {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .donate-button {
+            position: fixed;
+            top: 1rem;
+            right: 4rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+            z-index: 1000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .donate-button:hover {
+            background-color: #2980b9;
+        }
+
+        .donate-button i {
+            font-size: 1rem;
+        }
+
+        .result-container {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: var(--background-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        
+        .dropdown {
+            position: relative;
+            flex: 2;
+            min-width: 0;
+        }
+        .dropdown-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            outline: none;
+        }
+        .dropdown-list {
+            position: absolute;
+            top: 110%;
+            right: 0;
+            left: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background: var(--background-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            z-index: 10;
+            display: none;
+        }
+        .dropdown-list.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        .dropdown-item:hover, .dropdown-item.active {
+            background: var(--secondary-color);
+            color: #fff;
+        }
+        
+        select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background: none; }
+
+        
+        .dropdown-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .dropdown-list::-webkit-scrollbar-track {
+            background: var(--background-color);
+            border-radius: 10px;
+        }
+
+        .dropdown-list::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 10px;
+        }
+
+        .dropdown-list::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        
+        .dropdown-list {
+            scrollbar-width: thin;
+            scrollbar-color: var(--secondary-color) var(--background-color);
+        }
+
+        @media (max-width: 768px) {
+            .search-box {
+                flex-direction: column;
+            }
+            .container {
+                padding: 1rem;
+            }
+            .theme-toggle {
+                right: 1rem;
+                left: auto;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary-color);
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            font-size: 1.1rem;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .notification.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        
+        .verse-container {
+            background: var(--background-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .verse-text {
+            font-family: 'Traditional Arabic', 'Arial', sans-serif;
+            font-size: 2rem;
+            line-height: 2.5;
+            text-align: center;
+            color: var(--primary-color);
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .verse-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: var(--background-color);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .verse-info p {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .verse-number {
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .poetry-btn {
+            background-color: var(--secondary-color);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-bottom: 0.1rem;
+            transition: background 0.3s;
+        }
+        .poetry-btn:hover {
+            background-color: #2980b9;
+        }
+
+        #word-suggestions {
+            position: static;
+            margin-top: 0.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            max-width: 600px;
+            margin-right: auto;
+            margin-left: auto;
+            display: none;
+        }
+        #word-suggestions.show {
+            display: block;
+        }
+
+        
+        select::-webkit-scrollbar {
+            width: 8px;
+            background-color: var(--background-color);
+        }
+
+        select::-webkit-scrollbar-track {
+            background: var(--background-color);
+            border-radius: 10px;
+        }
+
+        select::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 10px;
+            border: 2px solid var(--background-color);
+        }
+
+        select::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        
+        select {
+            scrollbar-width: thin;
+            scrollbar-color: var(--secondary-color) var(--background-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+    </div>
+    
+    <a href="donate.html" class="donate-button">
+        <i class="fas fa-heart"></i>
+        ساعدنا في تشغيل الموقع
+    </a>
+    
+    <div class="container">
+        <header>
+            <h1>تَدَبّر</h1>
+            <p>البحث عن الآيات القرآنية</p>
+        </header>
+
+        <div class="search-container">
+            <div class="search-box">
+                <div class="dropdown">
+                    <input type="text" id="dropdownInput" class="dropdown-input" placeholder="اختر السورة أو ابحث..." autocomplete="off" onfocus="showDropdown()" oninput="filterDropdown()" readonly />
+                    <div id="dropdownList" class="dropdown-list"></div>
+                </div>
+                <input type="number" id="verse" placeholder="رقم الآية" />
+                <button onclick="searchVerse()">بحث</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="wordSearch" placeholder="بحث بالكلمات..." style="flex:2; padding:1rem; border:2px solid var(--primary-color); border-radius:8px; font-size:1.1rem; background-color:var(--background-color); color:var(--text-color);" oninput="onWordInput()" autocomplete="off" />
+                <button onclick="searchByWords()">بحث في الأيات</button>
+                <button onclick="searchInPoetry()">بحث في الشعر</button>
+            </div>
+            <div id="word-suggestions" class="dropdown-list" style="position:relative; z-index:100;"></div>
+        </div>
+
+        <div id="poetry-btn-container" style="display:none; text-align:center; margin-top: 2.5rem;"></div>
+        <div class="result-container" id="result"></div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="./home.js"></script>
+</body>
+</html> 
