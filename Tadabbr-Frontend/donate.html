@@ -355,6 +355,13 @@
         .home-button i {
             font-size: 1rem;
         }
+        .donation-method.locked {
+            cursor: not-allowed;
+            transition: opacity 0.3s ease;
+        }
+        .donation-method.locked:hover {
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body>
@@ -368,15 +375,15 @@
     <div class="container">
         <header>
             <h1>ساعدنا في تشغيل الموقع</h1>
-            <p>دعمكم يساعدنا في الحفاظ على شواهد كمرجع مجاني للجميع.</p>
+            <p>نحن نعمل على تقديم خدمة مجانية للجميع، ويمكنكم دعمنا من خلال:</p>
         </header>
         <div class="donation-amount-bar">
             <div class="amount-label">اختر مبلغ التبرع أو أدخله يدويًا:</div>
             <div class="manual-amount-box">
-                 <span>ريال</span>
+                 <span>USD</span>
                  <input type="number" id="manualAmount" class="manual-amount-input" value="5">
             </div>
-            <div class="amount-value" id="selectedAmount">5 ريال</div>
+            <div class="amount-value" id="selectedAmount">5 USD</div>
             <input type="range" id="amountSlider" class="amount-slider" min="5" max="500" value="5" step="5">
             <div class="quick-amounts">
                 <button class="quick-amount-btn" data-amount="5">5</button>
@@ -389,7 +396,7 @@
         <div class="donation-progress">
             <div class="progress-header">
                 <h3>هدف التبرع الشهري:</h3>
-                <span class="progress-amount">500 / 1000 ريال</span>
+                <span class="progress-amount">500 / 1000 USD</span>
             </div>
             <div class="progress-bar-container">
                 <div class="progress-bar" style="width: 50%;"></div>
@@ -401,11 +408,11 @@
                 </div>
                 <div class="stat-item">
                     <div class="label">متوسط التبرع:</div>
-                    <div class="value">33 ريال</div>
+                    <div class="value">33 USD</div>
                 </div>
                 <div class="stat-item">
                     <div class="label">أكبر تبرع:</div>
-                    <div class="value">100 ريال</div>
+                    <div class="value">100 USD</div>
                 </div>
             </div>
             <div class="time-remaining">
@@ -415,34 +422,30 @@
         <div class="donation-content">
             <h2>طرق التبرع المتاحة</h2>
             <div class="donation-methods">
-                <div class="donation-method">
+                <div class="donation-method locked">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>محافظ إلكترونية</h3>
+                    <p>الدفع عبر المحافظ الإلكترونية</p>
+                </div>
+                <div class="donation-method locked">
                     <i class="fas fa-university"></i>
-                    <h3>تحويل بنكي</h3>
-                    <div class="account-details">
-                        <p><strong>اسم البنك:</strong> بنك الراجحي</p>
-                        <p><strong>رقم الحساب:</strong> 1234567890</p>
-                        <p><strong>رقم الآيبان:</strong> SA121230000001234567890</p>
-                    </div>
-                    <button class="copy-button" onclick="copyAccountDetails('bank')">انسخ التفاصيل</button>
+                    <h3>التحويل البنكي</h3>
+                    <p>يمكنكم التبرع عبر التحويل البنكي المباشر</p>
                 </div>
-                <div class="donation-method">
-                    <i class="fab fa-paypal"></i>
-                    <h3>باي بال</h3>
-                    <p>تبرع بسهولة وأمان عبر باي بال.</p>
-                    <div class="qr-code">
-                         <img src="qr-paypal.png" alt="PayPal QR Code">
-                    </div>
-                    <button class="copy-button" onclick="copyAccountDetails('paypal')">تبرع الآن</button>
-                </div>
-                 <div class="donation-method">
-                     <i class="fab fa-btc"></i>
-                     <h3>عملات رقمية (قريبًا)</h3>
-                     <p>ستتوفر قريبًا إمكانية التبرع بالعملات الرقمية.</p>
+                <div class="donation-method locked">
+                    <i class="fab fa-btc"></i>
+                    <h3>العملات الرقمية</h3>
+                    <p>يمكنكم التبرع باستخدام البيتكوين أو الإيثيريوم</p>
+                 </div>
+                 <div class="donation-method locked">
+                    <i class="fas fa-dollar-sign"></i>
+                    <h3>تبرع مباشر</h3>
+                    <p>يمكنكم التواصل معنا للتبرع المباشر</p>
                  </div>
             </div>
         </div>
     </div>
     <div class="copy-notification" id="copyNotification">تم نسخ التفاصيل!</div>
-    <script src="./donate.js"></script>
+    <script src="donate.js"></script>
 </body>
 </html> 
