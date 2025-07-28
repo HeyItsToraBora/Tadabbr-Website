@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - شواهد</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --theme-toggle-bg: #2c3e50;
+        }
+        [data-theme="dark"] {
+            --primary-color: #ecf0f1;
+            --secondary-color: #3498db;
+            --background-color: #2c3e50;
+            --text-color: #ffffff;
+            --theme-toggle-bg: #ecf0f1;
+        }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Arial', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--theme-toggle-bg);
+            color: var(--background-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            z-index: 1000;
+        }
+        .theme-toggle.animated {
+            animation: rotateTheme 0.6s;
+        }
+        @keyframes rotateTheme {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+        }
+        nav {
+            display: flex;
+            gap: 1rem;
+        }
+        nav a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        nav a:hover {
+            background: var(--secondary-color);
+            color: #fff;
+        }
+        .dashboard-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: var(--background-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            padding: 1.5rem 2rem;
+            min-width: 200px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+        }
+        .stat-value {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .dashboard-section {
+            background: var(--background-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+        th {
+            background: var(--secondary-color);
+            color: #fff;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .actions button {
+            margin: 0 0.25rem;
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .actions .edit {
+            background: #f1c40f;
+            color: #fff;
+        }
+        .actions .delete {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .actions .edit:hover {
+            background: #d4ac0d;
+        }
+        .actions .delete:hover {
+            background: #c0392b;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background-color: var(--background-color);
+            margin: auto;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+        .close {
+            color: var(--primary-color);
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #000;
+        }
+        .quote-text {
+            font-style: italic;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+        .quote-author {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        .quote-source {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        @media (max-width: 900px) {
+            .dashboard-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            .dashboard-section {
+                padding: 1rem;
+            }
+        }
+        .notification {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary-color);
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            font-size: 1.1rem;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .notification.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+    </div>
+    <div class="container">
+        <header>
+            <h1>لوحة التحكم</h1>
+            <nav>
+                <a href="home.html">الرئيسية</a>
+                <a href="donate.html">التبرعات</a>
+            </nav>
+        </header>
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <i class="fas fa-bullseye"></i>
+                <div class="stat-label">الهدف الشهري</div>
+                <div class="stat-value">$2,000</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-donate"></i>
+                <div class="stat-label">تم جمعه</div>
+                <div class="stat-value">$0</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <div class="stat-label">عدد المتبرعين</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-hourglass-half"></i>
+                <div class="stat-label">الأيام المتبقية</div>
+                <div class="stat-value">5</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-eye"></i>
+                <div class="stat-label">عدد الزيارات</div>
+                <div class="stat-value">96</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-user-friends"></i>
+                <div class="stat-label">عدد المستخدمين</div>
+                <div class="stat-value">14</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-search"></i>
+                <div class="stat-label">عدد عمليات البحث</div>
+                <div class="stat-value">114</div>
+            </div>
+        </div>
+        
+        <!-- Quotes Management Section -->
+        <div class="dashboard-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>إدارة الاقتباسات</h2>
+                <button class="btn btn-primary" onclick="openAddQuoteModal()">
+                    <i class="fas fa-plus"></i> إضافة اقتباس جديد
+                </button>
+            </div>
+            <div id="quotesTable">
+                <p>جاري تحميل الاقتباسات...</p>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2>إدارة المستخدمين</h2>
+            <p>ميزة إدارة المستخدمين ستتوفر قريبًا.</p>
+        </div>
+        <div id="notification" class="notification"></div>
+    </div>
+
+    <!-- Add/Edit Quote Modal -->
+    <div id="quoteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeQuoteModal()">&times;</span>
+            <h2 id="modalTitle">إضافة اقتباس جديد</h2>
+            <form id="quoteForm">
+                <input type="hidden" id="quoteId" value="">
+                <div class="form-group">
+                    <label for="quoteText">نص الاقتباس *</label>
+                    <textarea id="quoteText" required placeholder="أدخل نص الاقتباس هنا..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="quoteAuthor">المؤلف *</label>
+                    <input type="text" id="quoteAuthor" required placeholder="اسم المؤلف">
+                </div>
+                <div class="form-group">
+                    <label for="quoteSource">المصدر</label>
+                    <input type="text" id="quoteSource" placeholder="مصدر الاقتباس (اختياري)">
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeQuoteModal()">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="./dashboard.js"></script>
+</body>
+</html> 
